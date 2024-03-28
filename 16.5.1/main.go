@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var _ Cache = InMemoryCache{} // это трюк для проверки типа: до тех пор пока InMemoryCache не будет реализовывать интерфейс Cache, программа не запустится
+var _ Cache = &InMemoryCache{} // это трюк для проверки типа: до тех пор пока InMemoryCache не будет реализовывать интерфейс Cache, программа не запустится
 
 type CacheEntry struct {
 	settledAt time.Time
@@ -20,19 +20,19 @@ type Cache interface {
 
 type InMemoryCache struct {
 	expireIn  time.Duration
-	dataMutex *sync.Mutex
-	data      map[string]CacheEntry
+	dataMutex sync.Mutex
+	data      map[string]*CacheEntry
 }
 
-func (i InMemoryCache) Set(key string, value interface{}) {
+func (i *InMemoryCache) Set(key string, value interface{}) {
 	i.dataMutex.Lock()
-	i.data[key] = CacheEntry{
+	i.data[key] = &CacheEntry{
 		settledAt: time.Now(),
 		value:     value,
 	}
 	i.dataMutex.Unlock()
 }
-func (i InMemoryCache) Get(key string) interface{} {
+func (i *InMemoryCache) Get(key string) interface{} {
 	i.dataMutex.Lock()
 	defer i.dataMutex.Unlock()
 	value, ok := i.data[key]
@@ -52,8 +52,8 @@ func (i InMemoryCache) Get(key string) interface{} {
 func NewInMemoryCache(expireIn time.Duration) *InMemoryCache {
 	return &InMemoryCache{
 		expireIn:  expireIn,
-		dataMutex: &sync.Mutex{},
-		data:      make(map[string]CacheEntry),
+		dataMutex: sync.Mutex{},
+		data:      make(map[string]*CacheEntry),
 	}
 }
 
