@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    Hello world!
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function(){
+            let socket = new WebSocket ("ws://localhost:8888/ws")
+            socket.onopen = () => {
+                console.log("open")
+                socket.send("сообщение с фронтенда")
+            }
+            socket.onclose = () =>{
+                console.log("close")
+            }
+            socket.onmessage = (e) => {
+                console.log(e.data)
+            }
+    })
+    </script>
+</body>
+</html>

@@ -52,12 +52,14 @@ func (a *Account) Deposit(amount int) {
 
 // Withdrawal ..
 func (a *Account) Withdrawal(amount int) error {
-	if amount > a.Balance() {
+	a.bMutex.Lock()
+	defer a.bMutex.Unlock()
+	if amount > a.balance {
 		return errors.New("your balance less then amount")
 	}
-	a.bMutex.Lock()
+
 	a.balance -= amount
-	a.bMutex.Unlock()
+
 	return nil
 }
 

@@ -1,0 +1,5 @@
+go 1.21.2
+
+use ./webserver
+use ./console_read
+use ./console_read/electronic
