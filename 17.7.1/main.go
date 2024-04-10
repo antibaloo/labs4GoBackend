@@ -39,7 +39,12 @@ func (c *Counter) StartCounter() {
 		defer close(c.balance) // Отложенное закрытие канала обратной связи, канал закроется при завершении горутины
 		for step := range c.send {
 			c.counter += step
-			c.balance <- c.counter
+			if c.counter < c.max {
+				c.balance <- c.counter
+			} else {
+				close(c.send)
+			}
+
 		}
 	}()
 }
@@ -49,12 +54,8 @@ func (c *Counter) StartCounter() {
 func (c *Counter) StartSenders() {
 	for i := 1; i <= c.numGoroutines; i++ {
 		go func() {
-			for counter := range c.balance {
-				if counter < c.max {
-					c.send <- 1
-				} else {
-					close(c.send)
-				}
+			for range c.balance {
+				c.send <- 1
 			}
 		}()
 	}
